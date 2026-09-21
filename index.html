@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timor-Leste Health Observatory | Observatório de Saúde de Timor-Leste</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for Interactive Health Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter for UI, Georgia for Scientific Articles -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: { DEFAULT: '#102A43', dark: '#0B1F33', light: '#1B3A5A' },
+                        accent: '#1769AA', teal: '#0F766E', aqua: '#E8F4F5', ink: '#17202A',
+                        muted: '#617184', line: '#D9E2EC', soft: '#F5F8FA', gold: '#C49A3A'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'Georgia', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; color: #17202A; background-color: #F5F8FA; }
+        .article-body { font-family: 'Merriweather', Georgia, serif; }
+        
+        /* Evidence Classification Badges */
+        .badge-observed { background-color: #E6F4EA; color: #137333; border: 1px solid #CEEAD6; }
+        .badge-estimated { background-color: #FEF7E0; color: #B06000; border: 1px solid #FDE293; }
+        .badge-analysed { background-color: #E8F0FE; color: #1A73E8; border: 1px solid #AECBFA; }
+        .badge-interpreted { background-color: #FCE8E6; color: #C5221F; border: 1px solid #FAD2CF; }
+        .badge-commentary { background-color: #F3E8FF; color: #7E22CE; border: 1px solid #E9D5FF; }
+        
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #F5F8FA; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+        
+        /* Focus styles for accessibility */
+        :focus-visible { outline: 2px solid #1769AA; outline-offset: 2px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-accent selection:text-white">
+
+    <div class="bg-navy-dark text-slate-300 text-xs py-2 px-4 sm:px-8 border-b border-navy-light/40">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div class="flex items-center gap-3">
+                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-teal/20 text-teal-300 font-medium text-[11px] tracking-wider">
+                    <span class="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span> <span data-i18n="top_platform_type">INDEPENDENT PUBLIC-HEALTH EVIDENCE PLATFORM</span>
+                </span>
+                <span class="text-slate-400 hidden md:inline">| Domain: <strong class="text-slate-200">timorhealthobservatory.tl</strong></span>
+            </div>
+            
+            <nav aria-label="Language Selector" class="flex items-center gap-2">
+                <span class="text-slate-400 text-[11px] uppercase tracking-wider font-semibold mr-1" data-i18n="lang_label">Language:</span>
+                <div class="inline-flex rounded-md shadow-sm bg-navy/80 p-0.5 border border-slate-700/60" role="group">
+                    <button onclick="setLanguage('en')" id="lang-btn-en" aria-label="English" class="px-2.5 py-1 text-xs font-semibold rounded text-white bg-accent transition-all">EN</button>
+                    <button onclick="setLanguage('tet')" id="lang-btn-tet" aria-label="Tetun" class="px-2.5 py-1 text-xs font-semibold rounded text-slate-300 hover:text-white transition-all">TET</button>
+                    <button onclick="setLanguage('pt')" id="lang-btn-pt" aria-label="Português" class="px-2.5 py-1 text-xs font-semibold rounded text-slate-300 hover:text-white transition-all">PT</button>
+                    <button onclick="setLanguage('id')" id="lang-btn-id" aria-label="Bahasa Indonesia" class="px-2.5 py-1 text-xs font-semibold rounded text-slate-300 hover:text-white transition-all">ID</button>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <header class="bg-navy text-white sticky top-0 z-40 shadow-md border-b border-navy-light" role="banner">
+        <div class="max-w-7xl mx-auto px-4 sm:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="#home" aria-label="Home" class="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-white rounded">
+                    <div class="w-11 h-11 rounded-lg bg-gradient-to-br from-accent to-teal flex items-center justify-center text-white shadow-md border border-white/20 group-hover:scale-105 transition-transform" aria-hidden="true">
+                        <i class="fa-solid fa-microscope text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="font-bold text-lg sm:text-xl tracking-tight leading-tight text-white group-hover:text-accent transition-colors" data-i18n="site_title">
+                            TIMOR-LESTE HEALTH OBSERVATORY
+                        </div>
+                        <div class="text-xs text-slate-300 font-light tracking-wide" data-i18n="site_tagline">
+                            Evidence • Epidemiology • Public Health • Timor-Leste
+                        </div>
+                    </div>
+                </a>
+
+                <nav aria-label="Main Navigation" class="hidden lg:flex items-center space-x-1 font-medium text-sm">
+                    <a href="#home" class="px-3 py-2 rounded-md text-slate-200 hover:text-white hover:bg-navy-light/60 transition-colors" data-i18n="nav_home">Home</a>
+                    <a href="#topics" class="px-3 py-2 rounded-md text-slate-200 hover:text-white hover:bg-navy-light/60 transition-colors" data-i18n="nav_topics">Health Topics</a>
+                    <a href="#data" class="px-3 py-2 rounded-md text-slate-200 hover:text-white hover:bg-navy-light/60 transition-colors" data-i18n="nav_data">Data Observatory</a>
+                    <a href="#analysis" class="px-3 py-2 rounded-md text-slate-200 hover:text-white hover:bg-navy-light/60 transition-colors" data-i18n="nav_analysis">Analysis</a>
+                    <a href="#publications" class="px-3 py-2 rounded-md text-slate-200 hover:text-white hover:bg-navy-light/60 transition-colors" data-i18n="nav_publications">Publications</a>
+                    <a href="#about" class="px-3 py-2 rounded-md text-slate-200 hover:text-white hover:bg-navy-light/60 transition-colors" data-i18n="nav_about">About</a>
+                </nav>
+
+                <button id="mobile-menu-btn" aria-expanded="false" aria-controls="mobile-menu" onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded-md text-slate-300 hover:text-white hover:bg-navy-light focus:outline-none" aria-label="Toggle Navigation">
+                    <i class="fa-solid fa-bars text-xl" id="menu-icon"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="hidden lg:hidden bg-navy-dark border-t border-navy-light px-4 pt-2 pb-4 space-y-1">
+            <a href="#home" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-md text-slate-200 hover:bg-navy-light" data-i18n="nav_home">Home</a>
+            <a href="#data" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-md text-slate-200 hover:bg-navy-light" data-i18n="nav_data">Data Observatory</a>
+            <a href="#analysis" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-md text-slate-200 hover:bg-navy-light" data-i18n="nav_analysis">Analysis</a>
+            <a href="#about" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-md text-slate-200 hover:bg-navy-light" data-i18n="nav_about">About</a>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <section id="home" class="bg-gradient-to-b from-navy via-navy to-navy-dark text-white py-14 lg:py-20 border-b border-navy-light relative overflow-hidden" aria-labelledby="hero-title">
+            <div class="absolute inset-0 opacity-5 bg-[radial-gradient(#1769AA_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none"></div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-8 relative z-10">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+                    <div class="lg:col-span-7 space-y-6">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/15 border border-gold/30 text-gold text-xs font-semibold uppercase tracking-wider">
+                            <i class="fa-solid fa-circle-check text-gold" aria-hidden="true"></i> <span data-i18n="hero_badge">Evidence Should Lead to Action</span>
+                        </div>
+                        
+                        <h1 id="hero-title" class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight" data-i18n="hero_title">
+                            Understanding Health in Timor-Leste Through Data and Evidence
+                        </h1>
+                        
+                        <p class="text-slate-300 text-base sm:text-lg leading-relaxed max-w-2xl font-light" data-i18n="hero_subtext">
+                            Independent public-health analysis, surveillance insights and health data designed to turn evidence into actionable interventions for Timor-Leste.
+                        </p>
+
+                        <div class="flex flex-wrap gap-4 pt-2">
+                            <a href="#data" class="px-6 py-3 rounded-lg bg-accent hover:bg-blue-600 text-white font-semibold shadow-lg transition-all flex items-center gap-2 focus:ring-2 focus:ring-offset-2 focus:ring-accent focus:ring-offset-navy">
+                                <i class="fa-solid fa-chart-line" aria-hidden="true"></i> <span data-i18n="btn_explore_data">Explore Data Observatory</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- HERO METRICS -->
+                    <div class="lg:col-span-5 grid grid-cols-2 gap-4" id="hero-metrics-container">
+                        <!-- Populated dynamically via JS to reflect accurate DB states -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="data" class="py-14 bg-soft border-b border-line" aria-labelledby="data-section-title">
+            <div class="max-w-7xl mx-auto px-4 sm:px-8">
+                <div class="mb-10">
+                    <span class="text-teal font-bold text-xs uppercase tracking-wider" data-i18n="sec_data_badge">Evidence Database</span>
+                    <h2 id="data-section-title" class="text-2xl sm:text-3xl font-extrabold text-ink mt-1" data-i18n="sec_data_title">Timor-Leste Data Observatory</h2>
+                    <p class="text-muted text-sm mt-1" data-i18n="sec_data_desc">Curated health indicators, rigorous evidence classifications, and interactive surveillance charts.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                    <article class="bg-white p-6 rounded-xl border border-line shadow-sm">
+                        <div class="mb-4">
+                            <h3 class="font-bold text-base text-ink" data-i18n="chart_dengue_title">Dengue Surveillance Monthly Cases</h3>
+                            <p class="text-xs text-muted" data-i18n="chart_dengue_sub">Comparative trends: Dili vs. Rest of Country (2026)</p>
+                        </div>
+                        <div class="h-64 relative">
+                            <canvas id="dengueChart" aria-label="Line chart showing Dengue cases"></canvas>
+                        </div>
+                    </article>
+
+                    <article class="bg-white p-6 rounded-xl border border-line shadow-sm">
+                        <div class="mb-4">
+                            <h3 class="font-bold text-base text-ink" data-i18n="chart_tb_title">Tuberculosis Case Detection Gap</h3>
+                            <p class="text-xs text-muted" data-i18n="chart_tb_sub">Estimated Incidence vs. Formally Notified (2026)</p>
+                        </div>
+                        <div class="h-64 relative">
+                            <canvas id="tbGapChart" aria-label="Bar chart showing TB detection gap"></canvas>
+                        </div>
+                    </article>
+                </div>
+
+                <!-- DYNAMIC DATA TABLE -->
+                <div class="bg-white rounded-xl border border-line shadow-sm overflow-hidden">
+                    <div class="p-5 border-b border-line flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50">
+                        <div>
+                            <h3 class="font-bold text-lg text-ink" data-i18n="table_title">Health Indicators Repository</h3>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <label for="indicator-search" class="sr-only">Search indicators</label>
+                            <input type="text" id="indicator-search" oninput="filterIndicators()" placeholder="Search indicators..." class="px-3 py-1.5 text-xs rounded-lg border border-line focus:outline-none focus:border-accent w-48">
+                            
+                            <label for="indicator-class-filter" class="sr-only">Filter by classification</label>
+                            <select id="indicator-class-filter" onchange="filterIndicators()" class="px-3 py-1.5 text-xs rounded-lg border border-line focus:outline-none focus:border-accent bg-white">
+                                <option value="ALL">All Classifications</option>
+                                <option value="OBSERVED">Observed</option>
+                                <option value="ESTIMATED">Estimated</option>
+                                <option value="ANALYSED">Analysed</option>
+                                <option value="INTERPRETED">Interpreted</option>
+                                <option value="COMMENTARY">Commentary</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-ink" aria-label="Health Indicators Data Table">
+                            <thead class="bg-slate-100 text-slate-700 font-bold uppercase tracking-wider border-b border-line">
+                                <tr>
+                                    <th scope="col" class="p-3.5" data-i18n="th_indicator">Indicator</th>
+                                    <th scope="col" class="p-3.5" data-i18n="th_value">Value</th>
+                                    <th scope="col" class="p-3.5" data-i18n="th_year">Year</th>
+                                    <th scope="col" class="p-3.5" data-i18n="th_class">Classification</th>
+                                    <th scope="col" class="p-3.5" data-i18n="th_geo">Geography</th>
+                                    <th scope="col" class="p-3.5" data-i18n="th_source">Source</th>
+                                </tr>
+                            </thead>
+                            <tbody id="indicator-table-body" class="divide-y divide-line">
+                                <!-- Populated dynamically by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="analysis" class="py-14 bg-white border-b border-line" aria-labelledby="analysis-section-title">
+            <div class="max-w-7xl mx-auto px-4 sm:px-8">
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+                    <div>
+                        <span class="text-accent font-bold text-xs uppercase tracking-wider" data-i18n="sec_analysis_badge">Independent Interpretation</span>
+                        <h2 id="analysis-section-title" class="text-2xl sm:text-3xl font-extrabold text-ink mt-1" data-i18n="sec_analysis_title">Epidemiological Analysis Hub</h2>
+                        <p class="text-muted text-sm mt-1" data-i18n="sec_analysis_desc">Rigorous public-health interpretations turning raw data into evidence-based policy action.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2" id="article-filters" role="group" aria-label="Filter articles by topic">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div id="articles-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Populated dynamically by JS -->
+                </div>
+            </div>
+        </section>
+
+        <div id="article-modal" class="fixed inset-0 z-50 hidden bg-navy/80 backdrop-blur-sm p-4 sm:p-6 md:p-10 flex justify-center items-start overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <div class="bg-white rounded-2xl shadow-2xl border border-line w-full max-w-5xl my-6 overflow-hidden relative">
+                <div class="sticky top-0 bg-navy text-white p-4 px-6 flex items-center justify-between border-b border-navy-light z-20">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-teal-400"></span>
+                        <span class="text-xs uppercase font-bold tracking-wider text-slate-300" data-i18n="modal_header">Timor-Leste Health Observatory • Reader</span>
+                    </div>
+                    <button id="close-modal-btn" onclick="closeArticleModal()" class="text-slate-300 hover:text-white text-xl p-1 rounded-md transition-colors focus:ring-2 focus:ring-white" aria-label="Close modal">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div id="modal-article-content" class="p-6 sm:p-10" tabindex="-1">
+                    <!-- Dynamic Content Loaded Here -->
+                </div>
+            </div>
+        </div>
+
+        <section id="about" class="py-14 bg-soft border-b border-line" aria-labelledby="about-section-title">
+            <div class="max-w-7xl mx-auto px-4 sm:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+                    
+                    <article class="lg:col-span-7 space-y-6">
+                        <div>
+                            <span class="text-teal font-bold text-xs uppercase tracking-wider" data-i18n="sec_about_badge">Institutional Positioning</span>
+                            <h2 id="about-section-title" class="text-2xl sm:text-3xl font-extrabold text-ink mt-1" data-i18n="sec_about_title">About the Observatory</h2>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl border border-line shadow-sm">
+                            <h3 class="font-bold text-base text-ink mb-3" data-i18n="class_title">Evidence Classification Standard</h3>
+                            <div class="space-y-2 text-xs" id="classification-framework">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </article>
+
+                    <aside class="lg:col-span-5 bg-white p-6 sm:p-8 rounded-2xl border border-line shadow-sm space-y-6">
+                        <div class="text-center">
+                            <div class="w-28 h-28 mx-auto rounded-full bg-gradient-to-br from-navy to-accent p-1 shadow-lg mb-4">
+                                <div class="w-full h-full rounded-full bg-slate-100 flex items-center justify-center text-navy font-extrabold text-3xl">FB</div>
+                            </div>
+                            <h3 class="text-xl font-extrabold text-ink">Frederico Bosco Alves dos Santos</h3>
+                            <p class="text-xs font-bold text-accent uppercase tracking-wider mt-0.5">MD, MPH</p>
+                            <p class="text-xs text-muted mt-1" data-i18n="founder_title">Founder & Editor, Timor-Leste Health Observatory</p>
+                            <p class="text-xs text-muted font-medium mt-1" data-i18n="founder_sub">Field Epidemiologist and Public Health Professional</p>
+                        </div>
+                        <div class="border-t border-b border-line py-4 text-xs text-ink leading-relaxed" data-i18n="founder_bio">
+                            Frederico Bosco Alves dos Santos is a medical doctor and epidemiologist dedicated to strengthening evidence-informed public health in Timor-Leste.
+                        </div>
+                    </aside>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-navy-dark text-slate-400 py-12 border-t border-navy-light text-xs" role="contentinfo">
+        <div class="max-w-7xl mx-auto px-4 sm:px-8">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-slate-700 pb-6 mb-6">
+                <div>
+                    <span class="font-bold text-white text-base tracking-tight" data-i18n="site_title">TIMOR-LESTE HEALTH OBSERVATORY</span><br>
+                    <span class="text-slate-500 text-[11px]" data-i18n="prototype_disclaimer">Prototype Data: Statistics shown are illustrative for architectural demonstration.</span>
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 text-[11px] text-slate-500">
+                <div data-i18n="footer_copy">
+                    &copy; 2026 Timor-Leste Health Observatory. Founder & Editor: Frederico Bosco Alves dos Santos, MD, MPH.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 1. JSON-DRIVEN DATA ARCHITECTURE
+        const TranslationsDB = {
+            en: {
+                top_platform_type: "INDEPENDENT PUBLIC-HEALTH EVIDENCE PLATFORM",
+                lang_label: "Language:",
+                site_title: "TIMOR-LESTE HEALTH OBSERVATORY",
+                site_tagline: "Evidence • Epidemiology • Public Health • Timor-Leste",
+                nav_home: "Home", nav_topics: "Health Topics", nav_data: "Data Observatory", nav_analysis: "Analysis", nav_publications: "Publications", nav_about: "About",
+                hero_badge: "Evidence Should Lead to Action",
+                hero_title: "Understanding Health in Timor-Leste Through Data and Evidence",
+                hero_subtext: "Independent public-health analysis, surveillance insights and health data designed to turn evidence into actionable interventions for Timor-Leste.",
+                btn_explore_data: "Explore Data Observatory",
+                sec_data_badge: "Evidence Database", sec_data_title: "Timor-Leste Data Observatory", sec_data_desc: "Curated health indicators, rigorous evidence classifications, and interactive surveillance charts.",
+                table_title: "Health Indicators Repository",
+                th_indicator: "Indicator", th_value: "Value", th_year: "Year", th_class: "Classification", th_geo: "Geography", th_source: "Source",
+                chart_dengue_title: "Dengue Surveillance Monthly Cases", chart_dengue_sub: "Comparative trends: Dili vs. Rest of Country (2026)",
+                chart_tb_title: "Tuberculosis Case Detection Gap", chart_tb_sub: "Estimated Incidence vs. Formally Notified (2026)",
+                sec_analysis_badge: "Independent Interpretation", sec_analysis_title: "Epidemiological Analysis Hub", sec_analysis_desc: "Rigorous public-health interpretations turning raw data into evidence-based policy action.",
+                modal_header: "Timor-Leste Health Observatory • Reader", btn_read: "Read Analysis", btn_back: "Return to Hub",
+                sec_about_badge: "Institutional Positioning", sec_about_title: "About the Observatory", class_title: "Evidence Classification Standard",
+                founder_title: "Founder & Editor, Timor-Leste Health Observatory", founder_sub: "Field Epidemiologist and Public Health Professional",
+                founder_bio: "Frederico Bosco Alves dos Santos is a medical doctor and epidemiologist dedicated to strengthening evidence-informed public health in Timor-Leste.",
+                prototype_disclaimer: "Prototype Data: Statistics shown are illustrative for architectural demonstration.",
+                footer_copy: "© 2026 Timor-Leste Health Observatory. Founder & Editor: Frederico Bosco Alves dos Santos, MD, MPH."
+            },
+            tet: {
+                top_platform_type: "PLATAFORMA INDEPENDENTE EVIDÉNSIA SAÚDE PÚBLIKA",
+                lang_label: "Lian:",
+                site_title: "OBSERVATÓRIU SAÚDE TIMOR-LESTE",
+                site_tagline: "Evidénsia • Epidemiolojia • Saúde Públika • Timor-Leste",
+                nav_home: "Varanda", nav_topics: "Tópiku Saúde", nav_data: "Observatóriu Dadus", nav_analysis: "Analiza", nav_publications: "Publikasaun", nav_about: "Kona-ba",
+                hero_badge: "Evidénsia Tenke Orienta Aksaun",
+                hero_title: "Komprende Saúde iha Timor-Leste Husi Dadus no Evidénsia",
+                hero_subtext: "Analiza saúde públika, matan-dook epidemiólogiku no dadus saúde atu transforma evidénsia ba aksaun real ba Timor-Leste.",
+                btn_explore_data: "Esplora Observatóriu Dadus",
+                sec_data_badge: "Baze Dadus Evidénsia", sec_data_title: "Observatóriu Dadus Timor-Leste", sec_data_desc: "Indikadór saúde mak kuradu, klasifikasaun evidénsia rigorozu, no gráfiku interativu.",
+                table_title: "Repozitóriu Indikadór Saúde",
+                th_indicator: "Indikadór", th_value: "Valór", th_year: "Tinan", th_class: "Klasifikasaun", th_geo: "Jeografia", th_source: "Fonte",
+                chart_dengue_title: "Kazu Mensál Vijilánsia Dengue", chart_dengue_sub: "Tendénsia: Dili vs. Munisípiu Seluk (2026)",
+                chart_tb_title: "Difrensa Deteção Kazu Tuberculose", chart_tb_sub: "Estimatizaun vs. Notifikasaun Formál (2026)",
+                sec_analysis_badge: "Interpretasaun Independente", sec_analysis_title: "Sentru Analiza Epidemiólogiku", sec_analysis_desc: "Interpretasaun saúde públika rigorozu atu transforma dadus ba polítika evidénsia.",
+                modal_header: "Observatóriu Saúde Timor-Leste • Leitor", btn_read: "Lee Analiza", btn_back: "Fila ba Sentru",
+                sec_about_badge: "Pozisionamentu Institusionál", sec_about_title: "Kona-ba Observatóriu", class_title: "Padraun Klasifikasaun Evidénsia",
+                founder_title: "Fundadór no Editór, Observatóriu Saúde Timor-Leste", founder_sub: "Epidemiólogu Terrenu no Profisionál Saúde Públika",
+                founder_bio: "Frederico Bosco Alves dos Santos mak médiku no epidemiólogu dedikadu atu hametin saúde públika bazeia ba evidénsia iha Timor-Leste.",
+                prototype_disclaimer: "Dadus Prototipu: Estatístika hatudu hanesan ilustrasaun ba demonstrasaun arquitetura.",
+                footer_copy: "© 2026 Observatóriu Saúde Timor-Leste. Fundadór no Editór: Frederico Bosco Alves dos Santos, MD, MPH."
+            },
+            pt: {
+                top_platform_type: "PLATAFORMA INDEPENDENTE DE EVIDÊNCIAS EM SAÚDE PÚBLICA",
+                lang_label: "Idioma:",
+                site_title: "OBSERVATÓRIO DE SAÚDE DE TIMOR-LESTE",
+                site_tagline: "Evidência • Epidemiologia • Saúde Pública • Timor-Leste",
+                nav_home: "Início", nav_topics: "Tópicos", nav_data: "Observatório Dados", nav_analysis: "Análise", nav_publications: "Publicações", nav_about: "Sobre",
+                hero_badge: "A Evidência Deve Guiar a Ação",
+                hero_title: "Compreender a Saúde em Timor-Leste Através de Dados e Evidências",
+                hero_subtext: "Análise independente de saúde pública, vigilância epidemiológica e dados concebidos para transformar evidências em ação.",
+                btn_explore_data: "Explorar Observatório de Dados",
+                sec_data_badge: "Base de Evidências", sec_data_title: "Observatório de Dados de Timor-Leste", sec_data_desc: "Indicadores de saúde curados, classificações rigorosas e gráficos interativos.",
+                table_title: "Repositório de Indicadores de Saúde",
+                th_indicator: "Indicador", th_value: "Valor", th_year: "Ano", th_class: "Classificação", th_geo: "Geografia", th_source: "Fonte",
+                chart_dengue_title: "Casos Mensais de Dengue", chart_dengue_sub: "Tendências: Díli vs. Resto do País (2026)",
+                chart_tb_title: "Lacuna de Deteção de Tuberculose", chart_tb_sub: "Incidência Estimada vs. Casos Notificados (2026)",
+                sec_analysis_badge: "Interpretação Independente", sec_analysis_title: "Centro de Análise Epidemiológica", sec_analysis_desc: "Interpretações rigorosas transformando dados em políticas baseadas em evidências.",
+                modal_header: "Observatório de Saúde • Leitor", btn_read: "Ler Análise", btn_back: "Voltar",
+                sec_about_badge: "Posicionamento Institucional", sec_about_title: "Sobre o Observatório", class_title: "Padrão de Classificação de Evidências",
+                founder_title: "Fundador e Editor, Observatório de Saúde", founder_sub: "Epidemiologista de Campo e Profissional de Saúde Pública",
+                founder_bio: "Frederico Bosco Alves dos Santos é médico e epidemiologista dedicado a fortalecer a saúde pública baseada em evidências em Timor-Leste.",
+                prototype_disclaimer: "Dados do Protótipo: As estatísticas mostradas são ilustrativas.",
+                footer_copy: "© 2026 Observatório de Saúde de Timor-Leste. Fundador e Editor: Frederico Bosco Alves dos Santos, MD, MPH."
+            },
+            id: {
+                top_platform_type: "PLATFORM BUKTI KESEHATAN MASYARAKAT INDEPENDEN",
+                lang_label: "Bahasa:",
+                site_title: "OBSERVATORIUM KESEHATAN TIMOR-LESTE",
+                site_tagline: "Bukti • Epidemiologi • Kesehatan Masyarakat • Timor-Leste",
+                nav_home: "Beranda", nav_topics: "Topik Kesehatan", nav_data: "Observatorium Data", nav_analysis: "Analisis", nav_publications: "Publikasi", nav_about: "Tentang",
+                hero_badge: "Bukti Harus Mengarah pada Tindakan",
+                hero_title: "Memahami Kesehatan di Timor-Leste Melalui Data dan Bukti",
+                hero_subtext: "Analisis kesehatan masyarakat independen dan wawasan surveilans untuk mengubah bukti menjadi tindakan di Timor-Leste.",
+                btn_explore_data: "Jelajahi Observatorium Data",
+                sec_data_badge: "Basis Data Bukti", sec_data_title: "Observatorium Data Timor-Leste", sec_data_desc: "Indikator kesehatan terkurasi, klasifikasi bukti yang ketat, dan grafik interaktif.",
+                table_title: "Repositori Indikator Kesehatan",
+                th_indicator: "Indikator", th_value: "Nilai", th_year: "Tahun", th_class: "Klasifikasi", th_geo: "Geografi", th_source: "Sumber",
+                chart_dengue_title: "Kasus Bulanan Surveilans Dengue", chart_dengue_sub: "Tren: Dili vs. Wilayah Lain (2026)",
+                chart_tb_title: "Kesenjangan Deteksi Kasus TBC", chart_tb_sub: "Estimasi Insiden vs. Kasus Dilaporkan (2026)",
+                sec_analysis_badge: "Interpretasi Independen", sec_analysis_title: "Pusat Analisis Epidemiologi", sec_analysis_desc: "Interpretasi kesehatan masyarakat yang ketat mengubah data menjadi kebijakan berbasis bukti.",
+                modal_header: "Observatorium Kesehatan Timor-Leste • Pembaca", btn_read: "Baca Analisis", btn_back: "Kembali",
+                sec_about_badge: "Posisi Institusional", sec_about_title: "Tentang Observatorium", class_title: "Standar Klasifikasi Bukti",
+                founder_title: "Pendiri & Editor, Observatorium Kesehatan", founder_sub: "Ahli Epidemiologi Lapangan dan Profesional Kesehatan Masyarakat",
+                founder_bio: "Frederico Bosco Alves dos Santos adalah dokter medis dan ahli epidemiologi yang berdedikasi untuk memperkuat kesehatan masyarakat berbasis bukti di Timor-Leste.",
+                prototype_disclaimer: "Data Prototipe: Statistik yang ditampilkan bersifat ilustratif.",
+                footer_copy: "© 2026 Observatorium Kesehatan Timor-Leste. Pendiri & Editor: Frederico Bosco Alves dos Santos, MD, MPH."
+            }
+        };
+
+        const Classifications = {
+            OBSERVED: { label: "OBSERVED", class: "badge-observed", desc: "Directly recorded empirical data from official registries." },
+            ESTIMATED: { label: "ESTIMATED", class: "badge-estimated", desc: "Modelled or extrapolated estimates from statistical models." },
+            ANALYSED: { label: "ANALYSED", class: "badge-analysed", desc: "Statistical calculations performed by Observatory researchers." },
+            INTERPRETED: { label: "INTERPRETED", class: "badge-interpreted", desc: "Contextual epidemiological interpretation and policy synthesis." },
+            COMMENTARY: { label: "COMMENTARY", class: "badge-commentary", desc: "Expert opinion, editorial insight, or methodological perspective." }
+        };
+
+        const SourcesDB = {
+            "MOH-TB-25": { organization: "Ministry of Health, Timor-Leste", document: "National TB Program Report", year: 2025, url: "#", accessed: "2026-08" },
+            "WHO-TB-25": { organization: "World Health Organization", document: "Global TB Report", year: 2025, url: "#", accessed: "2026-08" },
+            "MOH-DEN-26": { organization: "Ministry of Health, Timor-Leste", document: "Dengue Surveillance Bulletin W38", year: 2026, url: "#", accessed: "2026-09" },
+            "THO-MOD-26": { organization: "Timor-Leste Health Observatory", document: "Internal Modelling Analysis", year: 2026, url: "#", accessed: "2026-09" }
+        };
+
+        const IndicatorsDB = [
+            { id: "IND-01", indicator: "TB Incidence Rate", value: "496", unit: "per 100k", year: 2026, geography: "National", classification: "ESTIMATED", source: SourcesDB["WHO-TB-25"], method: { type: "Mathematical Modelling", denominator: "Total Pop Est", notes: "Confidence intervals wide" }, last_updated: "2026-09-01" },
+            { id: "IND-02", indicator: "TB Case Notification", value: "284", unit: "per 100k", year: 2025, geography: "National", classification: "OBSERVED", source: SourcesDB["MOH-TB-25"], method: { type: "Registry Count", denominator: "Total Pop Est", notes: "" }, last_updated: "2026-09-01" },
+            { id: "IND-03", indicator: "Dengue Clinical Cases", value: "3,412", unit: "cases", year: 2026, geography: "National", classification: "OBSERVED", source: SourcesDB["MOH-DEN-26"], method: { type: "Syndromic Surveillance", denominator: "N/A", notes: "Includes suspect & confirmed" }, last_updated: "2026-09-21" },
+            { id: "IND-04", indicator: "Dengue Case Fatality", value: "0.24", unit: "%", year: 2026, geography: "National", classification: "ANALYSED", source: SourcesDB["THO-MOD-26"], method: { type: "Ratio Calculation", denominator: "Reported Clinical Cases", notes: "" }, last_updated: "2026-09-21" }
+        ];
+
+        const ArticlesDB = [
+            {
+                id: "THO-2026-001", slug: "dengue-timor-leste-2026", topic: "Dengue",
+                title: "Dengue Surveillance in Timor-Leste: Epidemiological Interpretation of 2026 Data",
+                subtitle: "Analyzing seasonal transmission dynamics, municipal clusters, and vector intervention impacts.",
+                author: "Frederico Bosco Alves dos Santos, MD, MPH", published: "2026-09-15", geography: "National",
+                classification: "INTERPRETED",
+                content: {
+                    keyMessage: "Dengue transmission in 2026 shows moderate seasonal activity, with localized urban suppression in Dili following targeted Wolbachia releases.",
+                    whatHappened: "During the 2025–2026 wet season, national surveillance recorded 3,412 clinical dengue cases.",
+                    dataShow: "Monthly notification curves peaked in February 2026 at 640 cases before declining.",
+                    interpretation: "The relative reduction in Dili's case share coincides with the expansion of Wolbachia-carrying Aedes aegypti mosquitoes.",
+                    whyItMatters: "Sustained dengue control requires balancing novel biological vector interventions with traditional environmental source reduction.",
+                    whatWeDoNotKnow: "Circulating serotype distribution (DEN-1 through DEN-4) remains unconfirmed.",
+                    whatShouldHappenNext: "1. Expand molecular serotype surveillance. 2. Maintain community-led breeding site elimination.",
+                    limitations: "Surveillance relies primarily on health-facility reporting, potentially missing mild ambulatory cases.",
+                    sources: ["MOH National Dengue Surveillance Epidemiological Bulletin, 2026.", "THO Briefs, 2026."]
+                }
+            },
+            {
+                id: "THO-2026-002", slug: "tb-missing-cases", topic: "Tuberculosis",
+                title: "The Question Is Not Only How Many Cases We Have, But How Many We Are Missing",
+                subtitle: "Addressing the detection gap between estimated population burden and notification registries.",
+                author: "Frederico Bosco Alves dos Santos, MD, MPH", published: "2026-08-28", geography: "National",
+                classification: "COMMENTARY",
+                content: {
+                    keyMessage: "Timor-Leste maintains one of the highest estimated TB incidence rates in the region, yet official notifications capture roughly 57% of cases.",
+                    whatHappened: "WHO models estimate ~6,600 incident cases, but registries record ~3,800 notifications.",
+                    dataShow: "The gap leaves an estimated 43% of cases undiagnosed annually. Treatment success remains high at 88%.",
+                    interpretation: "High treatment success indicates effective clinical care; transmission is sustained predominantly by uncaptured community cases.",
+                    whyItMatters: "Undiagnosed individuals continue to transmit TB within households and crowded settings.",
+                    whatWeDoNotKnow: "The exact prevalence of asymptomatic subclinical TB in rural mountain communities.",
+                    whatShouldHappenNext: "1. Scale up digital X-ray screening. 2. Active household contact tracing.",
+                    limitations: "Incidence figures rely on mathematical models incorporating historical prevalence surveys.",
+                    sources: ["WHO Global Tuberculosis Report 2025/2026.", "National TB Program Report 2025."]
+                }
+            }
+        ];
+
+        let currentLang = 'en';
+        let modalFocusTrap = null;
+
+        function setLanguage(lang) {
+            currentLang = lang || 'en';
+            const t = TranslationsDB[currentLang];
+            
+            // Update buttons
+            ['en', 'tet', 'pt', 'id'].forEach(l => {
+                const btn = document.getElementById(`lang-btn-${l}`);
+                if(!btn) return;
+                if (l === currentLang) btn.className = "px-2.5 py-1 text-xs font-semibold rounded text-white bg-accent transition-all";
+                else btn.className = "px-2.5 py-1 text-xs font-semibold rounded text-slate-300 hover:text-white transition-all";
+            });
+
+            // Update DOM text by data-i18n attribute
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) {
+                    el.innerText = t[key];
+                }
+            });
+
+            // Re-render components that construct HTML containing translations
+            renderArticlesGrid();
+            renderIndicatorsTable();
+            renderHeroMetrics();
+        }
+
+        function renderHeroMetrics() {
+            const container = document.getElementById('hero-metrics-container');
+            container.innerHTML = `
+                <div class="bg-navy-light/50 backdrop-blur border border-slate-700/60 rounded-xl p-4 shadow-inner">
+                    <div class="text-slate-400 text-xs font-medium uppercase tracking-wider mb-1">TB Incidence Rate</div>
+                    <div class="text-2xl sm:text-3xl font-extrabold text-white">496<span class="text-xs text-slate-400 font-normal"> / 100k</span></div>
+                    <span class="inline-block mt-2 badge-estimated text-[10px] px-2 py-0.5 rounded font-semibold uppercase">${Classifications.ESTIMATED.label}</span>
+                </div>
+                <!-- V2 Requirement: Evidence Standard Metric -->
+                <div class="bg-navy-light/50 backdrop-blur border border-accent/40 rounded-xl p-4 shadow-inner flex flex-col justify-center">
+                    <div class="text-accent-light text-xs font-bold uppercase tracking-wider mb-1 flex items-center gap-1"><i class="fa-solid fa-shield-halved text-accent"></i> Evidence Standard</div>
+                    <div class="text-sm font-semibold text-white leading-snug mt-1">Source documented • Method transparent • Limitations stated</div>
+                </div>
+            `;
+        }
+
+        function renderIndicatorsTable() {
+            const tbody = document.getElementById('indicator-table-body');
+            const search = document.getElementById('indicator-search')?.value.toLowerCase() || "";
+            const classFilter = document.getElementById('indicator-class-filter')?.value || "ALL";
+            
+            tbody.innerHTML = '';
+
+            const filtered = IndicatorsDB.filter(item => {
+                const matchesQuery = item.indicator.toLowerCase().includes(search) || item.source.organization.toLowerCase().includes(search);
+                const matchesClass = (classFilter === 'ALL') || (item.classification === classFilter);
+                return matchesQuery && matchesClass;
+            });
+
+            filtered.forEach(item => {
+                const cls = Classifications[item.classification];
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="p-3.5 font-bold text-ink">${item.indicator}</td>
+                    <td class="p-3.5 font-extrabold text-navy">
+                        ${item.value} <span class="text-[10px] text-muted font-normal block md:inline">${item.unit}</span>
+                    </td>
+                    <td class="p-3.5 text-muted">${item.year}</td>
+                    <td class="p-3.5"><span class="${cls.class} text-[10px] font-bold px-2 py-0.5 rounded">${cls.label}</span></td>
+                    <td class="p-3.5 text-muted">${item.geography}</td>
+                    <td class="p-3.5 text-slate-500 font-mono text-[11px]" title="${item.source.document}">${item.source.organization}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterIndicators() { renderIndicatorsTable(); }
+
+        function renderArticlesGrid() {
+            const grid = document.getElementById('articles-grid');
+            const t = TranslationsDB[currentLang];
+            grid.innerHTML = '';
+
+            ArticlesDB.forEach(art => {
+                const cls = Classifications[art.classification];
+                const card = document.createElement('article');
+                card.className = "bg-soft border border-line rounded-2xl p-6 hover:shadow-lg transition-all flex flex-col justify-between group";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-3 gap-2">
+                            <span class="px-2.5 py-0.5 rounded bg-accent/10 text-accent font-bold text-xs">${art.topic}</span>
+                            <span class="${cls.class} text-[10px] font-bold px-2 py-0.5 rounded">${cls.label}</span>
+                        </div>
+                        <h3 class="font-extrabold text-lg text-ink group-hover:text-accent transition-colors leading-snug mb-2">${art.title}</h3>
+                        <p class="text-xs text-muted leading-relaxed mb-4">${art.subtitle}</p>
+                    </div>
+                    <div>
+                        <div class="pt-4 border-t border-line text-[11px] text-slate-500 mb-4 space-y-1">
+                            <div><i class="fa-solid fa-user-doctor text-slate-400 mr-1" aria-hidden="true"></i> ${art.author}</div>
+                            <div><i class="fa-solid fa-calendar text-slate-400 mr-1" aria-hidden="true"></i> ${art.published} • ${art.geography}</div>
+                        </div>
+                        <button onclick="openArticleModal('${art.id}')" class="w-full py-2.5 px-4 rounded-xl bg-navy hover:bg-accent text-white font-semibold text-xs transition-colors flex items-center justify-center gap-2" aria-label="Read ${art.title}">
+                            <i class="fa-solid fa-book-open" aria-hidden="true"></i> ${t.btn_read || "Read"}
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function openArticleModal(articleId) {
+            const art = ArticlesDB.find(a => a.id === articleId);
+            const t = TranslationsDB[currentLang];
+            if (!art) return;
+
+            const modal = document.getElementById('article-modal');
+            const content = document.getElementById('modal-article-content');
+            const cls = Classifications[art.classification];
+            
+            content.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div class="lg:col-span-8 space-y-8">
+                        <div>
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="px-2.5 py-1 rounded bg-accent/10 text-accent font-bold text-xs uppercase">${art.topic}</span>
+                                <span class="${cls.class} text-xs font-bold px-2.5 py-1 rounded uppercase">${cls.label}</span>
+                            </div>
+                            <h1 id="modal-title" class="text-2xl sm:text-3xl font-extrabold text-ink leading-tight mb-3">${art.title}</h1>
+                            <p class="text-sm sm:text-base text-muted font-medium italic border-l-4 border-accent pl-3 py-1">${art.subtitle}</p>
+                            <div class="mt-4 pt-4 border-t border-line text-xs text-slate-500 flex flex-wrap gap-4">
+                                <div><strong>Author:</strong> ${art.author}</div>
+                                <div><strong>Published:</strong> ${art.published}</div>
+                            </div>
+                        </div>
+
+                        <!-- Article 9-Part Structure -->
+                        <div class="bg-soft border-l-4 border-gold p-4 rounded-r-xl">
+                            <h3 class="font-bold text-xs uppercase tracking-wider text-gold mb-1"><i class="fa-solid fa-key mr-1"></i> 1. Key Message</h3>
+                            <p class="text-sm text-ink font-semibold leading-relaxed">${art.content.keyMessage}</p>
+                        </div>
+                        <div class="article-body space-y-6 text-sm text-ink leading-relaxed">
+                            <section><h3 class="font-sans font-bold text-base text-navy mb-2 flex items-center gap-2"><span class="w-6 h-6 rounded-full bg-navy text-white text-xs flex items-center justify-center font-bold">2</span> What Happened?</h3><p>${art.content.whatHappened}</p></section>
+                            <section><h3 class="font-sans font-bold text-base text-navy mb-2 flex items-center gap-2"><span class="w-6 h-6 rounded-full bg-navy text-white text-xs flex items-center justify-center font-bold">3</span> What Does the Data Show?</h3><p>${art.content.dataShow}</p></section>
+                            <section><h3 class="font-sans font-bold text-base text-navy mb-2 flex items-center gap-2"><span class="w-6 h-6 rounded-full bg-navy text-white text-xs flex items-center justify-center font-bold">4</span> Epidemiological Interpretation</h3><p>${art.content.interpretation}</p></section>
+                            <section><h3 class="font-sans font-bold text-base text-navy mb-2 flex items-center gap-2"><span class="w-6 h-6 rounded-full bg-navy text-white text-xs flex items-center justify-center font-bold">5</span> Why Does It Matter?</h3><p>${art.content.whyItMatters}</p></section>
+                            <section><h3 class="font-sans font-bold text-base text-navy mb-2 flex items-center gap-2"><span class="w-6 h-6 rounded-full bg-navy text-white text-xs flex items-center justify-center font-bold">6</span> What We Still Don't Know</h3><p class="bg-amber-50 p-3.5 rounded-lg border border-amber-200 text-amber-950">${art.content.whatWeDoNotKnow}</p></section>
+                            <section><h3 class="font-sans font-bold text-base text-navy mb-2 flex items-center gap-2"><span class="w-6 h-6 rounded-full bg-navy text-white text-xs flex items-center justify-center font-bold">7</span> Actionable Recommendations</h3><div class="bg-teal/5 p-4 rounded-xl border border-teal/20 text-teal-950 font-sans text-xs">${art.content.whatShouldHappenNext}</div></section>
+                            <section><h3 class="font-sans font-bold text-base text-navy mb-2 flex items-center gap-2"><span class="w-6 h-6 rounded-full bg-navy text-white text-xs flex items-center justify-center font-bold">8</span> Methodological Limitations</h3><p class="text-xs text-muted italic">${art.content.limitations}</p></section>
+                            <section class="pt-6 border-t border-line font-sans">
+                                <h3 class="font-bold text-base text-navy mb-3 flex items-center gap-2"><span class="w-6 h-6 rounded-full bg-navy text-white text-xs flex items-center justify-center font-bold">9</span> Sources & Citation Generator</h3>
+                                <div class="space-y-2 mb-4 text-xs">
+                                    <ul class="list-disc pl-5 space-y-1 text-slate-600">${art.content.sources.map(s => `<li>${s}</li>`).join('')}</ul>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-4 space-y-6 font-sans">
+                        <div class="bg-navy text-white p-5 rounded-xl border border-navy-light text-xs space-y-2">
+                            <div class="font-bold text-gold text-xs uppercase tracking-wider">Methodological Notice</div>
+                            <!-- V2 Requirement: Peer Review Text Update -->
+                            <p class="text-slate-300 leading-relaxed">Editorial and methodological review: Articles are reviewed for source attribution, epidemiological consistency, methodological transparency, and clarity before publication.</p>
+                        </div>
+                        <button onclick="closeArticleModal()" class="w-full py-3 rounded-xl border border-line bg-white hover:bg-slate-100 text-ink font-semibold text-xs transition-colors flex items-center justify-center gap-2" id="modal-back-btn">
+                            <i class="fa-solid fa-arrow-left"></i> ${t.btn_back || "Return"}
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            
+            // Accessibility: Focus trap
+            const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            if (focusableElements.length > 0) {
+                setTimeout(() => focusableElements[0].focus(), 50); // slight delay for render
+            }
+
+            modalFocusTrap = function(e) {
+                if (e.key === 'Escape') closeArticleModal();
+            };
+            document.addEventListener('keydown', modalFocusTrap);
+        }
+
+        function closeArticleModal() {
+            const modal = document.getElementById('article-modal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            if (modalFocusTrap) document.removeEventListener('keydown', modalFocusTrap);
+            // Return focus to grid
+            document.getElementById('analysis').focus();
+        }
+
+        function initCharts() {
+            const ctxDengue = document.getElementById('dengueChart').getContext('2d');
+            new Chart(ctxDengue, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+                    datasets: [
+                        { label: 'Dili', data: [520, 640, 480, 310, 190, 120, 85, 60, 45], borderColor: '#1769AA', backgroundColor: 'rgba(23, 105, 170, 0.1)', fill: true, tension: 0.3 },
+                        { label: 'Other', data: [380, 420, 390, 280, 210, 160, 110, 90, 70], borderColor: '#0F766E', borderDash: [5, 5], tension: 0.3 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            const ctxTB = document.getElementById('tbGapChart').getContext('2d');
+            new Chart(ctxTB, {
+                type: 'bar',
+                data: {
+                    labels: ['Estimated Incidence', 'Formally Notified'],
+                    datasets: [{ label: 'Cases per 100k', data: [496, 284], backgroundColor: ['#102A43', '#0F766E'], borderRadius: 6 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+
+        function renderClassificationFramework() {
+            const container = document.getElementById('classification-framework');
+            container.innerHTML = Object.values(Classifications).map(cls => `
+                <div class="p-2.5 rounded bg-slate-50 flex items-center justify-between border border-line">
+                    <span class="${cls.class} px-2 py-0.5 rounded font-bold text-[10px] uppercase w-24 text-center">${cls.label}</span>
+                    <span class="text-slate-600 text-right w-full ml-3 leading-snug">${cls.desc}</span>
+                </div>
+            `).join('');
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('menu-icon');
+            const btn = document.getElementById('mobile-menu-btn');
+            const isHidden = menu.classList.contains('hidden');
+            
+            if (isHidden) {
+                menu.classList.remove('hidden');
+                icon.className = "fa-solid fa-xmark text-xl";
+                btn.setAttribute('aria-expanded', 'true');
+            } else {
+                menu.classList.add('hidden');
+                icon.className = "fa-solid fa-bars text-xl";
+                btn.setAttribute('aria-expanded', 'false');
+            }
+        }
+
+        window.onload = function() {
+            renderClassificationFramework();
+            setLanguage('en'); 
+            initCharts();
+        };
+    </script>
+</body>
+</html>
